@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/bowles-resident-matching/static/css/main.e6c13ad2.css",
+    "main.js": "/bowles-resident-matching/static/js/main.27338404.js",
+    "static/js/453.f203958c.chunk.js": "/bowles-resident-matching/static/js/453.f203958c.chunk.js",
+    "index.html": "/bowles-resident-matching/index.html",
+    "main.e6c13ad2.css.map": "/bowles-resident-matching/static/css/main.e6c13ad2.css.map",
+    "main.27338404.js.map": "/bowles-resident-matching/static/js/main.27338404.js.map",
+    "453.f203958c.chunk.js.map": "/bowles-resident-matching/static/js/453.f203958c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.27338404.js"
+  ]
+}
