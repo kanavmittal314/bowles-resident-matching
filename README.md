@@ -1,3 +1,14 @@
+# How to use this
+Deploy as a React App -- this has been deployed at https://kanavmittal314.github.io/bowles-resident-matching/
+
+preferences.csv -- columns are name, gender, and then all the other preferences. 
+rooms.csv -- rooms are room numbers and capacity (for now, can just label room numbers 1, 2, 3, 4, etc.)
+key.csv -- the columns should be category, weighting, 1, 2, 3, 4. and then each row is for each category, how much it's weighted, and then the different options for each category on a scale of 1 to 4.
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
