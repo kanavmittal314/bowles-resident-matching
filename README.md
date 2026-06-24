@@ -1,81 +1,83 @@
-# How to use this
-Deploy as a React App -- this has been deployed at https://kanavmittal314.github.io/bowles-resident-matching/
+# Bowles Resident Matching
 
-preferences.csv -- columns are name, gender, and then all the other preferences. 
-rooms.csv -- rooms are room numbers and capacity (for now, can just label room numbers 1, 2, 3, 4, etc.)
-key.csv -- the columns should be category, weighting, 1, 2, 3, 4. and then each row is for each category, how much it's weighted, and then the different options for each category on a scale of 1 to 4.
+Browser-only resident matching workspace for assigning singles and doubles with a mixed manual and ILP-assisted workflow.
 
+Deploy as a React app. The current hosted version is:
+https://kanavmittal314.github.io/bowles-resident-matching/
 
+## Workflow
 
+1. Upload a preferences CSV or TSV by clicking the file control or dragging a file onto the upload zone.
+2. Enter how many single rooms and double rooms are available.
+3. Preview the file and map each column to a role: ignore this column, name, gender, preference, or extra information.
+4. Encode discovered preference values numerically and set a weight for each preference type.
+5. Drag students into rooms manually, or run the optimizer for students still unassigned.
+6. Set a max GLPK solve time if you want the browser solver to stop early and use the best feasible assignment found so far.
+7. Cancel a running GLPK optimization if needed; current assignments are left unchanged.
+8. Download a final CSV with each student and their assigned room.
 
+All computation runs locally in the browser. No files are uploaded to a server.
 
-# Getting Started with Create React App
+## Input Files
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Preferences CSV/TSV
+
+The app lets you map columns after upload, so exact header names are flexible. The file must contain:
+
+- Student name
+- Gender. This is treated as a categorical value, so it can be text like `Woman`/`Man`, letters like `F`/`M`, or already-encoded values like `1`/`2`.
+- One or more preference columns to encode and weight
+- Optional extra information columns. These are visible on expanded student cards but are not used by the optimizer.
+
+Columns marked as `Ignore this column` are ignored.
+
+Example:
+
+```csv
+Name,Gender,Sleep,Cleanliness,Guests
+Avery,F,Early,Very tidy,Often
+Blair,F,Late,Relaxed,Rarely
+Casey,M,Early,Tidy,Sometimes
+```
+
+## Matching Model
+
+The active solver is implemented with `glpk.js` in `src/roommateSolver.js`.
+
+- The UI currently generates room slots from entered single-room and double-room counts instead of accepting a room file.
+- Manual assignments are locked when the optimizer runs.
+- The optimizer assigns only students who are still unassigned.
+- A max solve time can stop GLPK early. If GLPK has found a feasible incumbent by then, the app uses it even if optimality is not proven.
+- A running browser GLPK solve can be canceled from the progress panel.
+- Gender is a hard same-gender constraint for optimized assignments. The solver compares the mapped gender values as categories and does not require numeric gender encoding.
+- For the current single/double-room workflow, the ILP chooses same-gender pairs, solo placements, and fills for manually locked partial double rooms. Room labels are assigned after GLPK selects the pair/solo structure.
+- The objective minimizes total weighted pairwise incompatibility among paired students and students added to manually locked partial doubles.
+- Optimization can run as one combined ILP or as one sequential ILP per gender. The gender-split mode is usually faster; it now selects a tight room subset for each gender before solving so it does not waste beds needed by later gender groups.
+
+Compatibility between two students is:
+
+```text
+sum(weight[column] * abs(encodedA[column] - encodedB[column]))
+```
+
+Lower scores mean closer compatibility. Rooms with manual over-capacity or gender conflicts are flagged in the UI and must be fixed before optimization.
+
+See `TODO.md` for the planned return of variable-capacity room support.
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Runs the app in development mode at http://localhost:3000.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### `npm test -- --watchAll=false`
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the test suite once.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the production app into the `build` folder.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run deploy`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Builds and deploys the app to GitHub Pages using `gh-pages`.
